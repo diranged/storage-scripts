@@ -25,7 +25,7 @@ BCACHE_MODE=${BCACHE_MODE:-writethrough}
 FORCE=${FORCE:-0}
 NO_PARTITIONS_EXIT_CODE=${NO_PARTITIONS_EXIT_CODE:-1}
 
-# create_md_volume() 
+# create_md_volume()
 BLOCK_SIZE=${BLOCK_SIZE:-512}
 RAID_LEVEL=${RAID_LEVEL:-0}
 
@@ -58,6 +58,28 @@ dry_exec() {
   fi
 }
 
+# Waits until the Apt lock file is available
+#
+# Stolen blatetly from
+# http://askubuntu.com/questions/132059/how-to-make-a-package-manager-wait-if-another-instance-of-apt-is-running
+#
+wait_for_apt_availability() {
+  i=0
+  tput sc
+  while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+    case $(($i % 4)) in
+      0 ) j="-" ;;
+      1 ) j="\\" ;;
+      2 ) j="|" ;;
+      3 ) j="/" ;;
+    esac
+    tput rc
+    echo -en "\r[$j] Waiting for other software managers to finish..."
+    sleep 0.5
+    ((i=i+1))
+  done
+}
+
 # Checks that all of the Aptitude package dependencies are installed. If they
 # aren't, it does an apt-get update and installs the missing packages.
 #
@@ -75,6 +97,9 @@ install_apt_deps() {
 
   # If no packages are missing, then exit this function
   if ! test "$missing"; then return; fi
+
+  # Wait for aptitude to become available
+  wait_for_apt_availability
 
   # Install the Apt dependencies now
   apt-get -qq update || warn "apt-get update failed ... attempting package install anyways"
@@ -157,7 +182,7 @@ discover_partitions() {
         debug "${part} already has a partition table, skipping!"
       fi
     fi
-   
+
     if test $fail -eq 0; then
       AVAILABLE_PARTITIONS="${AVAILABLE_PARTITIONS} ${part}"
     fi
@@ -276,7 +301,7 @@ maybe_wipe() {
  for dev in $@; do
    dry_exec "wipefs $dev && wipefs -a $dev"
  done
-} 
+}
 
 # Optionally creates a /dev/bcache0 device using the local instance level
 # ephemeral drives as caches and the already-created /dev/mdX device as
