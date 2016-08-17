@@ -39,8 +39,8 @@ MOUNT_OPTS=${MOUNT_OPTS:-defaults,noatime,nodiratime,nobootwait}
 
 # Discover all available partitions -- but allow the user to override the list
 # as well.
-DISCOVERED_PARTITIONS=$(cat /proc/partitions | tail -n +3 | grep -v 'md' | awk '{print $4}' | tr '\n' ' ')
-EXCLUDED_PARTITIONS=${EXCLUDED_PARTITIONS:-"/dev/xvda /dev/xvda14 /dev/xvda15 /dev/xvda1 /dev/sda /dev/sda1"}
+DISCOVERED_PARTITIONS=$(cat /proc/partitions | tail -n +3 | egrep -i '(xvd[b-z]([0-9]+)?|sd[b-z]([0-9]+)?)' | awk '{print $4}' | tr '\n' ' ')
+EXCLUDED_PARTITIONS=${EXCLUDED_PARTITIONS:-"/dev/xvda /dev/sda /dev/sda1"}
 PARTITIONS=${PARTITIONS:-$DISCOVERED_PARTITIONS}
 
 # Stupid simple logger methods that wrap our log messages with some
