@@ -127,6 +127,11 @@ make_filesystem() {
   dry_exec "mkfs.${FS} ${mkfs_opts} ${VOL}"
   dry_exec "mount ${VOL} ${MOUNT_POINT} -o ${MOUNT_OPTS}"
   dry_exec "echo ${mnt_line} >> /etc/fstab"
+
+  # If we're on a cloud-init system, fstab may be ignored on bootup..
+  if [[ -e /etc/cloud/cloud.cfg.d ]]; then
+    dry_exec echo -e "bootcmd:\n - /bin/mount -a" > /etc/cloud/cloud.cfg.d/01_mnt.cfg
+  fi
 }
 
 # Checks whether or not bcache-tools is available. If its not, sets
