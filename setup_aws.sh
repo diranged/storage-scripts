@@ -130,7 +130,7 @@ create_md_volume
 # If we've used EBS as our backing store, and if ENABLE_BCACHE is enabled
 # then we create the bcache0 device. If NOT, then we simply move on with
 # formatting /dev/md0.
-case $STORAGE_TYPE in
+case "$STORAGE_TYPE" in
   ebs)
     # Store a reference to our backing volume. This will be used by
     # create_bcache_vol()
