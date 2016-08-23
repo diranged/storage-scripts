@@ -130,8 +130,8 @@ make_filesystem() {
 
   # If we're on a cloud-init system, fstab may be ignored on bootup..
   if test -e /etc/cloud/cloud.cfg.d; then
-    dry_exec "echo \"bootcmd:\" > /etc/cloud.cfg.d/01_mnt/cfg"
-    dry_exec "echo \" - /bin/mount -a\" > /etc/cloud/cloud.cfg.d/01_mnt.cfg"
+    dry_exec "echo \"bootcmd:\" > /etc/cloud/cloud.cfg.d/01_mnt.cfg"
+    dry_exec "echo \" - /bin/mount -a\" >> /etc/cloud/cloud.cfg.d/01_mnt.cfg"
   fi
 }
 
