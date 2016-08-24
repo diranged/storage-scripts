@@ -72,6 +72,11 @@ case $INSTANCE_FAMILY in
     DEFAULT_BLOCK_SIZE=4
     DEFAULT_ENABLE_BCACHE=1
     ;;
+  r3)
+    echo "Loading up R3 Instance Family defaults"
+    DEFAULT_BLOCK_SIZE=512
+    DEFAULT_ENABLE_BCACHE=0 # ssds are pretty slow on R3s
+    ;;
   *)
     echo 'No specific custom settings found, using defaults'
     DEFAULT_BLOCK_SIZE=512
@@ -130,8 +135,7 @@ create_md_volume
 # If we've used EBS as our backing store, and if ENABLE_BCACHE is enabled
 # then we create the bcache0 device. If NOT, then we simply move on with
 # formatting /dev/md0.
-case "$STORAGE_TYPE" in
-  ebs)
+if test "$STORAGE_TYPE" = "ebs" && test "$ENABLE_BCACHE" -eq "1"; then
     # Store a reference to our backing volume. This will be used by
     # create_bcache_vol()
     BACKING_DEVICE=$MD_VOL
@@ -154,9 +158,5 @@ case "$STORAGE_TYPE" in
 
     # Now create the bcache0 device and format it
     create_bcache_vol
-    make_filesystem
-    ;;
-  *)
-    make_filesystem
-    ;;
-esac
+fi
+make_filesystem
