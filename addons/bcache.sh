@@ -12,12 +12,9 @@ start() {
   if [ ! -e /sys/block/bcache0/bcache/cache ]; then
     /sbin/wipefs -a $CACHE_DEVICE
     /usr/sbin/make-bcache -C $CACHE_DEVICE
-    for DEV in $CACHE_DEVICE; do
-      echo $DEV > /sys/fs/bcache/register
-    done
+    echo $CACHE_DEVICE > /sys/fs/bcache/register
     sleep 1
-    name=`basename /sys/fs/bcache/*-*-*`
-    echo $name > /sys/block/bcache0/bcache/attach
+    echo `basename /sys/fs/bcache/*-*-*` > /sys/block/bcache0/bcache/attach
 
   fi
 
